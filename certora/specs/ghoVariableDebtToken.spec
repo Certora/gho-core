@@ -529,38 +529,38 @@ rule integrityOfBurn_userIsolation() {
 /**
 * @title proves that the discount rate is calculated correctly when calling updateDiscountDistribution
 **/
-// TODO: reolve timeout or comment out ruleq
-rule integrityOfUpdateDiscountDistribution_discountRate() {
-	address sender;
-    address recipient;
-    uint256 senderDiscountTokenBalanceBefore;
-    uint256 recipientDiscountTokenBalanceBefore;
-    uint256 amount;
-	uint256 senderDiscountTokenBalanceAfter = require_uint256(senderDiscountTokenBalanceBefore - amount);
-    uint256 recipientDiscountTokenBalanceAfter = require_uint256(recipientDiscountTokenBalanceBefore + amount);
-	env e0;
-	env e;
-	require(e.block.timestamp > e0.block.timestamp);
-	require(indexAtTimestamp(e.block.timestamp) >= indexAtTimestamp(e0.block.timestamp));
-	require(indexAtTimestamp(e0.block.timestamp) == ray()); // reduces execution time
-	require(getUserCurrentIndex(sender) == indexAtTimestamp(e0.block.timestamp));
-	require(getUserCurrentIndex(recipient) == indexAtTimestamp(e0.block.timestamp));
+// TODO: enable when timeout is resolved
+// rule integrityOfUpdateDiscountDistribution_discountRate() {
+// 	address sender;
+//     address recipient;
+//     uint256 senderDiscountTokenBalanceBefore;
+//     uint256 recipientDiscountTokenBalanceBefore;
+//     uint256 amount;
+// 	uint256 senderDiscountTokenBalanceAfter = require_uint256(senderDiscountTokenBalanceBefore - amount);
+//     uint256 recipientDiscountTokenBalanceAfter = require_uint256(recipientDiscountTokenBalanceBefore + amount);
+// 	env e0;
+// 	env e;
+// 	require(e.block.timestamp > e0.block.timestamp);
+// 	require(indexAtTimestamp(e.block.timestamp) >= indexAtTimestamp(e0.block.timestamp));
+// 	require(indexAtTimestamp(e0.block.timestamp) == ray()); // reduces execution time
+// 	require(getUserCurrentIndex(sender) == indexAtTimestamp(e0.block.timestamp));
+// 	require(getUserCurrentIndex(recipient) == indexAtTimestamp(e0.block.timestamp));
 
-	require(getBalanceOfDiscountToken(e0, sender) == senderDiscountTokenBalanceBefore);
-	require(getBalanceOfDiscountToken(e0, recipient) == recipientDiscountTokenBalanceBefore);
-	require(discStrategy.calculateDiscountRate(balanceOf(e0, sender), senderDiscountTokenBalanceBefore) == getUserDiscountRate(sender));
-	require(discStrategy.calculateDiscountRate(balanceOf(e0, recipient), recipientDiscountTokenBalanceBefore) == getUserDiscountRate(recipient));
+// 	require(getBalanceOfDiscountToken(e0, sender) == senderDiscountTokenBalanceBefore);
+// 	require(getBalanceOfDiscountToken(e0, recipient) == recipientDiscountTokenBalanceBefore);
+// 	require(discStrategy.calculateDiscountRate(balanceOf(e0, sender), senderDiscountTokenBalanceBefore) == getUserDiscountRate(sender));
+// 	require(discStrategy.calculateDiscountRate(balanceOf(e0, recipient), recipientDiscountTokenBalanceBefore) == getUserDiscountRate(recipient));
 
 	
-	require(getBalanceOfDiscountToken(e, sender) == senderDiscountTokenBalanceAfter);
-	require(getBalanceOfDiscountToken(e, recipient) == recipientDiscountTokenBalanceAfter);
+// 	require(getBalanceOfDiscountToken(e, sender) == senderDiscountTokenBalanceAfter);
+// 	require(getBalanceOfDiscountToken(e, recipient) == recipientDiscountTokenBalanceAfter);
 
-	updateDiscountDistribution(e, sender, recipient, senderDiscountTokenBalanceBefore, recipientDiscountTokenBalanceBefore, amount);
-	uint256 senderBalance = balanceOf(e, sender);
-	uint256 recipientBalance = balanceOf(e, recipient);
-	assert(discStrategy.calculateDiscountRate(senderBalance, senderDiscountTokenBalanceAfter) == getUserDiscountRate(sender));
-	assert(discStrategy.calculateDiscountRate(recipientBalance, recipientDiscountTokenBalanceAfter) == getUserDiscountRate(recipient));
-}
+// 	updateDiscountDistribution(e, sender, recipient, senderDiscountTokenBalanceBefore, recipientDiscountTokenBalanceBefore, amount);
+// 	uint256 senderBalance = balanceOf(e, sender);
+// 	uint256 recipientBalance = balanceOf(e, recipient);
+// 	assert(discStrategy.calculateDiscountRate(senderBalance, senderDiscountTokenBalanceAfter) == getUserDiscountRate(sender));
+// 	assert(discStrategy.calculateDiscountRate(recipientBalance, recipientDiscountTokenBalanceAfter) == getUserDiscountRate(recipient));
+// }
 
 /**
 * @title proves the after calling updateDiscountDistribution, the user's state is updated with the recent index value

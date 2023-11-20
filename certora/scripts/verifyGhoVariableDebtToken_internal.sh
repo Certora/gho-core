@@ -1,4 +1,3 @@
-#!/bin/sh
 
 certoraRun certora/harness/ghoVariableDebtTokenHarness_internal.sol:GhoVariableDebtTokenHarness \
     certora/harness/DummyPool.sol \
