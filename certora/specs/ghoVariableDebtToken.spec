@@ -129,18 +129,9 @@ invariant discountCantExceed100Percent(address user)
 		}
 	}
 
-// rule nondecreasing_user_index(method f) filtered { f-> !f.isView }
-// {
-// 	env e; calldataarg args;
-// 	address user; 
-// 	uint256 index_before = getUserCurrentIndex(user);
-// 	f(e, args);
-// 	uint256 index_after = getUserCurrentIndex(user);
-// 	assert index_after >= index_before;
-// }
 
-
-rule user_index_increase_after_mint
+// check user index after mint()
+rule user_index_after_mint
 {
 	env e; 
 	address user;
@@ -151,8 +142,32 @@ rule user_index_increase_after_mint
 	uint256 user_index_before = getUserCurrentIndex(onBehalfOf);
 	mint(e, user, onBehalfOf, amount, index);
 	uint256 user_index_after = getUserCurrentIndex(onBehalfOf);
-	assert  index > user_index_before =>  user_index_after > user_index_before;
+	assert index > user_index_before =>  user_index_after > user_index_before;
 	assert user_index_after == index;
+}
+
+// check accumulated interest after mint()
+rule accumulated_interest_increase_after_mint
+{
+	env e; 
+	address user;
+    address onBehalfOf;
+    uint256 amount;
+    uint256 index;
+
+	uint256 user_index_before = getUserCurrentIndex(onBehalfOf);
+	uint256 balance_before = balanceOf(e, onBehalfOf);
+	uint256 discount_before = getUserDiscountRate(onBehalfOf);
+	uint256 accumulated_interest_before = getUserAccumulatedDebtInterest(onBehalfOf);
+	mint(e, user, onBehalfOf, amount, index);
+	uint256 accumulated_interest_after = getUserAccumulatedDebtInterest(onBehalfOf);
+
+
+	assert  ray() <= user_index_before
+			&& to_mathint(user_index_before + ray()) < to_mathint(index) 
+			&& balance_before > 0
+			&& discount_before < 5000
+			=> accumulated_interest_after > accumulated_interest_before;
 }
 
 /**
