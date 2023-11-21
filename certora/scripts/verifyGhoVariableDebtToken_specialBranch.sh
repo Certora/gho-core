@@ -15,8 +15,7 @@ certoraRun certora/harness/ghoVariableDebtTokenHarness.sol:GhoVariableDebtTokenH
     --solc solc8.10 \
     --optimistic_loop \
     --rule "${@}" \
-    --smt_timeout 900 \
-    --prover_args "-mediumTimeout 30 -depth 15" \
+    --prover_args '-depth 0 -adaptiveSolverConfig false -smt_nonLinearArithmetic true' --server staging --prover_version shelly/z3-4-12-3-build \
     --msg "GhoVariableDebtToken"
 
 else
@@ -32,8 +31,7 @@ certoraRun certora/harness/ghoVariableDebtTokenHarness.sol:GhoVariableDebtTokenH
     --loop_iter 2 \
     --solc solc8.10 \
     --optimistic_loop \
-    --smt_timeout 900 \
-    --prover_args "-mediumTimeout 30 -depth 15" \
+    --prover_args '-depth 0 -adaptiveSolverConfig false -smt_nonLinearArithmetic true' --server staging --prover_version shelly/z3-4-12-3-build \
     --msg "GhoVariableDebtToken"
 
 fi
