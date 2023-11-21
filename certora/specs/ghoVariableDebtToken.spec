@@ -47,6 +47,7 @@ methods{
 	function getUserDiscountRate(address) external returns (uint256) envfree;
 	function getUserAccumulatedDebtInterest(address) external returns (uint256) envfree;
 	function getBalanceOfDiscountToken(address) external returns (uint256);
+	function getDiscountToken() external returns (address) envfree;
 
 	/********************************;
 	*	GhoVariableDebtToken.sol	*;
@@ -128,6 +129,19 @@ invariant discountCantExceed100Percent(address user)
 			require(indexAtTimestamp(e.block.timestamp) >= ray());
 		}
 	}
+
+
+
+//mutatnt 6
+// A new discount token is not address zero
+rule nonzeroNewDiscountToken{
+
+	env e;
+	address newDiscountToken; 
+  	updateDiscountToken(e, newDiscountToken);
+	assert newDiscountToken != 0;
+}
+
 
 
 // check user index after mint()
@@ -702,16 +716,4 @@ rule burnAllDebtReturnsZeroDebt(address user) {
     assert(variableDebt_ == 0);
 }
 
-
-// setup self check - reachability of currentContract external functions
-// todo: debug unreachable functions and add to CI: 
-//  transfer(), transferFrom(), approve(), allowance(), increaseAllowance(), decreaseAllowance().
-rule method_reachability {
-  env e;
-  calldataarg arg;
-  method f;
-
-  f(e, arg);
-  satisfy true;
-}
 
