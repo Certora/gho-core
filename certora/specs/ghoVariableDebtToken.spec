@@ -160,7 +160,6 @@ rule nonzeroNewDiscountToken{
 }
 
 
-
 // check user index after mint()
 rule user_index_after_mint
 {
@@ -187,6 +186,7 @@ rule accumulated_interest_increase_after_mint
     uint256 index;
 
 	requireInvariant user_index_ge_one_ray(e, onBehalfOf);
+	requireInvariant discountCantExceedDiscountRate(onBehalfOf);
 
 	uint256 user_index_before = getUserCurrentIndex(onBehalfOf);
 	uint256 balance_before = balanceOf(e, onBehalfOf);
@@ -196,9 +196,7 @@ rule accumulated_interest_increase_after_mint
 	uint256 accumulated_interest_after = getUserAccumulatedDebtInterest(onBehalfOf);
 
 
-	assert  to_mathint(user_index_before + ray()) < to_mathint(index) 
-			&& balance_before > 0
-			&& discount_before < 5000
+	assert balance_before > 0 && to_mathint(user_index_before + ray()) < to_mathint(index) 
 			=> accumulated_interest_after > accumulated_interest_before;
 }
 
