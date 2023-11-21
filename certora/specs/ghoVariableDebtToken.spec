@@ -155,6 +155,8 @@ rule accumulated_interest_increase_after_mint
     uint256 amount;
     uint256 index;
 
+	requireInvariant user_index_ge_one_ray(e, onBehalfOf);
+
 	uint256 user_index_before = getUserCurrentIndex(onBehalfOf);
 	uint256 balance_before = balanceOf(e, onBehalfOf);
 	uint256 discount_before = getUserDiscountRate(onBehalfOf);
@@ -163,12 +165,26 @@ rule accumulated_interest_increase_after_mint
 	uint256 accumulated_interest_after = getUserAccumulatedDebtInterest(onBehalfOf);
 
 
-	assert  ray() <= user_index_before
-			&& to_mathint(user_index_before + ray()) < to_mathint(index) 
+	assert  to_mathint(user_index_before + ray()) < to_mathint(index) 
 			&& balance_before > 0
 			&& discount_before < 5000
 			=> accumulated_interest_after > accumulated_interest_before;
 }
+
+// User index >= 1 ray for every user with positive balance 
+invariant user_index_ge_one_ray(env e1, address user1)
+		scaledBalanceOf(e1, user1) != 0 => ray() <=  getUserCurrentIndex(user1)
+		{
+        preserved mint(address user2, address onBehalfOf, uint256 amount, uint256 index) with (env e2)
+        {
+            require index >= ray(); //TODO: verify - the Pool calls mint() with index >= 1 ray
+        }
+        preserved  burn(address from, uint256 amount, uint256 index) with (env e3)
+        {
+            require index >= ray(); //TODO: verify - the Pool calls burn() with index >= 1 ray
+        }
+    }
+
 
 /**
 * Imported rules from VariableDebtToken.spec
@@ -529,7 +545,7 @@ rule integrityOfBurn_userIsolation() {
 /**
 * @title proves that the discount rate is calculated correctly when calling updateDiscountDistribution
 **/
-// TODO: enable when timeout is resolved
+// TODO: enable when timeout is resolved and add to CI
 // rule integrityOfUpdateDiscountDistribution_discountRate() {
 // 	address sender;
 //     address recipient;
@@ -685,3 +701,17 @@ rule burnAllDebtReturnsZeroDebt(address user) {
 	uint256 variableDebt_ = balanceOf(e, user);
     assert(variableDebt_ == 0);
 }
+
+
+// setup self check - reachability of currentContract external functions
+// todo: debug unreachable functions and add to CI: 
+//  transfer(), transferFrom(), approve(), allowance(), increaseAllowance(), decreaseAllowance().
+rule method_reachability {
+  env e;
+  calldataarg arg;
+  method f;
+
+  f(e, arg);
+  satisfy true;
+}
+
