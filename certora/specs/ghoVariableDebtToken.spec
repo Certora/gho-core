@@ -160,6 +160,29 @@ rule nonzeroNewDiscountToken{
 }
 
 
+// If a user's index has changed then it is assigned with the current pool index.
+// Assuming that the Pool calls mint() and burn() with its current index.
+invariant user_index_up_to_date(env e1, address user1)
+		scaledBalanceOf(e1, user1) != 0 => 
+		getUserCurrentIndex(user1) == indexAtTimestamp(e1.block.timestamp)
+		{
+        preserved mint(address user2, address onBehalfOf, uint256 amount, uint256 index) with (env e2)
+        {
+            require index == indexAtTimestamp(e2.block.timestamp); 
+            require e1.block.timestamp == e2.block.timestamp;
+        }
+        preserved  burn(address from, uint256 amount, uint256 index) with (env e3)
+        {
+            require index == indexAtTimestamp(e3.block.timestamp);
+            require e1.block.timestamp == e3.block.timestamp;
+        }
+		preserved with (env e4)
+        {
+            require e1.block.timestamp == e4.block.timestamp;
+        }
+    }
+
+
 // check user index after mint()
 rule user_index_after_mint
 {
