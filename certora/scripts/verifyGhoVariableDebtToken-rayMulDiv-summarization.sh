@@ -19,6 +19,7 @@ certoraRun certora/harness/ghoVariableDebtTokenHarness.sol:GhoVariableDebtTokenH
     --solc solc8.10 \
     --optimistic_loop \
     --smt_timeout 900 \
+    --multi_assert_check \
     --fe_version latest \
     --prover_args "-mediumTimeout 30 -depth 15" \
     $RULE \
