@@ -15,7 +15,7 @@ certoraRun certora/harness/ghoVariableDebtTokenHarness.sol:GhoVariableDebtTokenH
     --solc solc8.10 \
     --optimistic_loop \
     --rule "${@}" \
-    --msg "GhoVariableDebtToken"
+    --msg "GhoVariableDebtToken rules ${@}"
 
 else
 certoraRun certora/harness/ghoVariableDebtTokenHarness.sol:GhoVariableDebtTokenHarness \
