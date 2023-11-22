@@ -48,6 +48,7 @@ methods{
 	function getUserDiscountRate(address) external returns (uint256) envfree;
 	function getUserAccumulatedDebtInterest(address) external returns (uint256) envfree;
 	function getBalanceOfDiscountToken(address) external returns (uint256);
+	function getDiscountToken() external returns (address) envfree;
 
 	/********************************;
 	*	GhoVariableDebtToken.sol	*;
@@ -145,6 +146,74 @@ invariant discountCantExceedDiscountRate(address user)
 			require(indexAtTimestamp(e.block.timestamp) >= ray());
 		}
 	}
+
+
+
+//mutatnt 6
+// A new discount token is not address zero
+rule nonzeroNewDiscountToken{
+
+	env e;
+	address newDiscountToken; 
+  	updateDiscountToken(e, newDiscountToken);
+	assert newDiscountToken != 0;
+}
+
+
+// check user index after mint()
+rule user_index_after_mint
+{
+	env e; 
+	address user;
+    address onBehalfOf;
+    uint256 amount;
+    uint256 index;
+
+	uint256 user_index_before = getUserCurrentIndex(onBehalfOf);
+	mint(e, user, onBehalfOf, amount, index);
+	uint256 user_index_after = getUserCurrentIndex(onBehalfOf);
+	assert index > user_index_before =>  user_index_after > user_index_before;
+	assert user_index_after == index;
+}
+
+// check accumulated interest after mint()
+rule accumulated_interest_increase_after_mint
+{
+	env e; 
+	address user;
+    address onBehalfOf;
+    uint256 amount;
+    uint256 index;
+
+	requireInvariant user_index_ge_one_ray(e, onBehalfOf);
+	requireInvariant discountCantExceedDiscountRate(onBehalfOf);
+
+	uint256 user_index_before = getUserCurrentIndex(onBehalfOf);
+	uint256 balance_before = balanceOf(e, onBehalfOf);
+	uint256 discount_before = getUserDiscountRate(onBehalfOf);
+	uint256 accumulated_interest_before = getUserAccumulatedDebtInterest(onBehalfOf);
+	mint(e, user, onBehalfOf, amount, index);
+	uint256 accumulated_interest_after = getUserAccumulatedDebtInterest(onBehalfOf);
+
+
+	assert balance_before > 0 && to_mathint(user_index_before + ray()) < to_mathint(index) 
+			=> accumulated_interest_after > accumulated_interest_before;
+}
+
+// User index >= 1 ray for every user with positive balance 
+invariant user_index_ge_one_ray(env e1, address user1)
+		scaledBalanceOf(e1, user1) != 0 => ray() <=  getUserCurrentIndex(user1)
+		{
+        preserved mint(address user2, address onBehalfOf, uint256 amount, uint256 index) with (env e2)
+        {
+            require index >= ray(); //TODO: verify - the Pool calls mint() with index >= 1 ray
+        }
+        preserved  burn(address from, uint256 amount, uint256 index) with (env e3)
+        {
+            require index >= ray(); //TODO: verify - the Pool calls burn() with index >= 1 ray
+        }
+    }
+
 
 /**
 * Imported rules from VariableDebtToken.spec
