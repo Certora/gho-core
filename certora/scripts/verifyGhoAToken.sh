@@ -13,7 +13,7 @@ certoraRun certora/munged/contracts/facilitators/aave/tokens/GhoAToken.sol \
     --link GhoVariableDebtToken:_ghoAToken=GhoAToken \
     --solc solc8.10 \
     --optimistic_loop \
-    --rules "${@}" \
+    --rule "${@}" \
     --msg "GhoAToken, rules ${@}"
 else
 certoraRun certora/munged/contracts/facilitators/aave/tokens/GhoAToken.sol \

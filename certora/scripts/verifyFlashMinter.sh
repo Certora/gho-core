@@ -12,7 +12,7 @@ certoraRun certora/munged/contracts/facilitators/flashMinter/GhoFlashMinter.sol:
     --solc solc8.10 \
     --optimistic_loop \
     --prover_args "-contractRecursionLimit 1" \
-    --rules "${@}"
+    --rule "${@}"
     --msg "flashMinter check, rules ${@}"
 else
 certoraRun certora/munged/contracts/facilitators/flashMinter/GhoFlashMinter.sol:GhoFlashMinter \
