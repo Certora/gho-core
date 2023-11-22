@@ -11,7 +11,7 @@ certoraRun certora/harness/ghoVariableDebtTokenHarness.sol:GhoVariableDebtTokenH
     certora/harness/DummyERC20WithTimedBalanceOf.sol \
     certora/munged/contracts/facilitators/aave/interestStrategy/GhoDiscountRateStrategy.sol \
     certora/harness/DummyERC20A.sol certora/harness/DummyERC20B.sol \
-    --verify GhoVariableDebtTokenHarness:certora/specs/mutant_11.spec \
+    --verify GhoVariableDebtTokenHarness:certora/specs/ghoVariableDebtToken-rayMulDiv-summarization.spec \
     --link GhoVariableDebtTokenHarness:_discountRateStrategy=GhoDiscountRateStrategy \
     --link GhoVariableDebtTokenHarness:_discountToken=DummyERC20WithTimedBalanceOf \
     --link GhoVariableDebtTokenHarness:POOL=DummyPool \
@@ -22,5 +22,10 @@ certoraRun certora/harness/ghoVariableDebtTokenHarness.sol:GhoVariableDebtTokenH
     --send_only \
     --fe_version latest \
     --prover_args "-mediumTimeout 30 -depth 15" \
-    --rule $1 \
+    $RULE \
     --msg "$1 $2"
+
+
+
+
+#--rule $1 \

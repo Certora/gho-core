@@ -50,50 +50,5 @@ contract GhoVariableDebtTokenHarness is GhoVariableDebtToken {
     return POOL.getReserveNormalizedVariableDebt(_underlyingAsset);
   }
 
-  function _accrueDebtOnAction_ext(address user,uint256 previousScaledBalance,
-                                   uint256 discountPercent,uint256 index)
-      external returns (uint256, uint256) {
-      return _accrueDebtOnAction(user,previousScaledBalance,discountPercent,index);
-  }
-
-  function ___mint(address account, uint256 amount) external {
-      _mint(account, amount.toUint128());
-  }
-
-  function _mintScaled_ext(address caller,address onBehalfOf,uint256 amount, uint256 index
-                          ) external returns (bool) {
-      /*
-      uint256 amountScaled = amount.rayDiv(index);
-      //    require(amountScaled != 0, Errors.INVALID_MINT_AMOUNT);
-      require(amountScaled != 0);
-
-      uint256 previousScaledBalance = scaledBalanceOf(onBehalfOf);
-      uint256 discountPercent = getDiscountPercent(onBehalfOf);//_ghoUserState[onBehalfOf].discountPercent;
-      (uint256 balanceIncrease, uint256 discountScaled) = _accrueDebtOnAction(
-                                                                              onBehalfOf,
-                                                                              previousScaledBalance,
-                                                                              discountPercent,
-                                                                              index
-      );
-      
-      // confirm the amount being borrowed is greater than the discount
-      if (amountScaled > discountScaled) {
-          _mint(onBehalfOf, (amountScaled + discountScaled).toUint128());
-      }
-      
-      return true;
-*/
-       return _mintScaled(caller,onBehalfOf,amount,index);
-  }
-
-  function _refreshDiscountPercent_ext(
-                                       address user,
-                                       uint256 balance,
-                                       uint256 discountTokenBalance,
-                                       uint256 previousDiscountPercent
-  ) external {
-      _refreshDiscountPercent(user,balance,discountTokenBalance,previousDiscountPercent);
-  }
-
   function get_ghoAToken() external returns (address) {return _ghoAToken;}
 }

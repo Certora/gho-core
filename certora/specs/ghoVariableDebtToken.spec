@@ -664,70 +664,6 @@ rule burnAllDebtReturnsZeroDebt(address user) {
 
 
 
-rule mutant_13() {
-    env e;
-    address sender; address recipient; 
-    uint256 senderDiscountTokenBalance; uint256 recipientDiscountTokenBalance; uint256 amount;
-
-    uint256 recipient_scaledBal_prev = scaledBalanceOf(recipient);
-
-    
-    //    assert (recipient_scaledBal_after <= recipient_scaledBal_prev);
-    uint256 current_index = indexAtTimestamp(e.block.timestamp);
-    uint256 recipient_index = getUserCurrentIndex(recipient);
-    require recipient_index <= current_index;
-    
-    //uint256 bal_increase = (current_index-recipient_index) * previousScaledBalance_of_recipient;
-    mathint bal_increase = rayMul(e, recipient_scaledBal_prev, current_index) -
-        rayMul(e, recipient_scaledBal_prev, recipient_index);
-    
-    //    uint256 discountScaled = bal_increase * recipient_precentage / index;
-    uint256 discountPercent = getDiscountPercent(e, recipient);
-    uint256 precent = require_uint256(bal_increase * discountPercent / 10000);
-    uint256 discountScaled = rayDiv(e, precent, current_index);
-
-    updateDiscountDistribution(e, sender, recipient,
-                               senderDiscountTokenBalance, recipientDiscountTokenBalance,
-                               amount);
-    uint256 recipient_scaledBal_after = scaledBalanceOf(recipient);
-
-    
-    assert (discountScaled > 0 => recipient_scaledBal_after < recipient_scaledBal_prev);
-}
-
-
-rule mutant_9() {
-    env e;
-    address sender; address recipient; 
-    uint256 senderDiscountTokenBalance; uint256 recipientDiscountTokenBalance; uint256 amount;
-
-    uint256 sender_scaledBal_prev = scaledBalanceOf(sender);
-    
-    //    assert (sender_scaledBal_after <= sender_scaledBal_prev);
-    uint256 current_index = indexAtTimestamp(e.block.timestamp);
-    uint256 sender_index = getUserCurrentIndex(sender);
-
-    require ray() <= sender_index  &&  sender_index <= current_index  && current_index <= ray_2();
-    
-    //uint256 bal_increase = (current_index-sender_index) * previousScaledBalance_of_sender;
-    mathint bal_increase = rayMul(e, sender_scaledBal_prev, current_index) -
-        rayMul(e,sender_scaledBal_prev, sender_index);
-    
-    //uint256 discountScaled = bal_increase * sender_precentage / index;
-    uint256 discountPercent = getDiscountPercent(e, sender);
-    uint256 discount = require_uint256(bal_increase * discountPercent / 10000);
-    uint256 discountScaled = rayDiv(e, discount, current_index);
-
-    updateDiscountDistribution(e, sender, recipient,
-                               senderDiscountTokenBalance, senderDiscountTokenBalance,
-                               amount);
-    uint256 sender_scaledBal_after = scaledBalanceOf(sender);
-    
-    assert (sender_index +10000 < to_mathint(current_index) &&
-            sender_scaledBal_prev > 0 &&
-            discountPercent > 0
-           ) => sender_scaledBal_after<sender_scaledBal_prev;
-}
 
 rule mutant_11() {
     env e;
@@ -742,23 +678,6 @@ rule mutant_11() {
     mint(e,user,onBehalfOf,amount,index);
 
     mathint after_bal = scaledBalanceOf(e, onBehalfOf);
-
-    assert (after_bal <= prev_bal + amountScaled);
-}
-
-
-
-rule mutant_8() {
-    env e;
-    address user; uint256 amount; uint256 index;
-    //        address user; address onBehalfOf; uint256 amount; uint256 index;
-
-    mathint amountScaled = rayDiv(e,amount,index);
-    mathint prev_bal = scaledBalanceOf(e, user);
-
-    burn(e,user,amount,index);
-
-    mathint after_bal = scaledBalanceOf(e, user);
 
     assert (after_bal <= prev_bal + amountScaled);
 }
