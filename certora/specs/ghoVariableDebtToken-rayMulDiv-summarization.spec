@@ -253,24 +253,24 @@ rule _ghoAToken_cant_be_zero() {
 }
 
 
-/*
-rule mutant_8() {
+
+rule discount_takes_place_in_burn() {
     env e;
     address user; uint256 amount; uint256 index;
 
     mathint amountScaled = rayDiv(e,amount,index);
     mathint prev_Scaledbal = scaledBalanceOf(e, user);
-    uint256 discountScaled = get_discount_scaled(e,sender);
-    uint256 balanceBeforeBurn = balanceOf(user);
+    mathint prev_bal = balanceOf(e, user);
+    uint256 discountScaled = get_discount_scaled(e,user);
+    //uint256 balanceBeforeBurn = balanceOf(user);
 
     burn(e,user,amount,index);
-
     mathint after_bal = scaledBalanceOf(e, user);
 
+    assert to_mathint(amount)==prev_bal => after_bal==0;
 
-    
-    assert (after_bal <= prev_bal + amountScaled);
+    assert (to_mathint(amount)!=prev_bal && discountScaled>0) =>
+        after_bal < prev_bal - discountScaled;
 }
-*/
 
 
