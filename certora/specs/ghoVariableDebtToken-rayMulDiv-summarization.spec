@@ -191,7 +191,6 @@ rule in_updateDiscountDistribution_amount_affects_sender_discount() {
     env e;
     address sender; address recipient; 
     uint256 senderDiscountTokenBalance; uint256 recipientDiscountTokenBalance; uint256 amount_1;
-    require (sender != recipient);
     
     storage initState = lastStorage;
 
@@ -219,7 +218,6 @@ rule in_updateDiscountDistribution_amount_affects_recpient_discount() {
     env e;
     address sender; address recipient; 
     uint256 senderDiscountTokenBalance; uint256 recipientDiscountTokenBalance; uint256 amount_1;
-    require (sender != recipient);
     
     storage initState = lastStorage;
 
@@ -270,7 +268,7 @@ rule discount_takes_place_in_burn() {
     assert to_mathint(amount)==prev_bal => after_bal==0;
 
     assert (to_mathint(amount)!=prev_bal && discountScaled>0) =>
-        after_bal < prev_bal - discountScaled;
+        after_bal < prev_bal - amountScaled;
 }
 
 
