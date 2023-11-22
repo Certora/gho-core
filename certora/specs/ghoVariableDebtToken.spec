@@ -6,78 +6,60 @@ import "summarizations.spec";
 using GhoDiscountRateStrategy as discStrategy;
 
 methods{
-    /********************;
-     *	WadRayMath.sol	*;
-     *********************/
-    //        function rayDiv(uint256 x, uint256 y) external returns uint256 envfree;
-    //function rayMul(uint256 x, uint256 y) external returns uint256 envfree;
-    //function _.rayMul(uint256 a,uint256 b) internal => rayMul_gst(a,b) expect uint256 ALL;
-    //function _.rayDiv(uint256 a,uint256 b) internal => rayDiv_gst(a,b) expect uint256 ALL;
-    //    function getIndex(uint256 bal) public view returns (uint256) 
+	/********************;
+	*	WadRayMath.sol	*;
+	*********************/
+	// function _.rayMul(uint256 x, uint256 y) internal => rayMulSummariztion(x, y) expect(uint256);
+	function rayDiv(uint256 x, uint256 y) external returns uint256 envfree;
+    function rayMul(uint256 x, uint256 y) external returns uint256 envfree;
 
-      /***********************************;
-     *    PoolAddressesProvider.sol     *;
-     ************************************/
-    function _.getACLManager() external => CONSTANT;
-    
-    /************************;
-     *    ACLManager.sol     *;
-     *************************/
-    function _.isPoolAdmin(address) external => CONSTANT;
-    
-    /******************************************************************;
-     *	DummyERC20WithTimedBalanceOf.sol (linked to _discountToken)   *;
-     *******************************************************************/
-    // Internal function in DummyERC20WithTimedBalanceOf which exposes the block's timestamp and called by DummyERC20WithTimedBalanceOf::balanceOf
-    function _._balanceOfWithBlockTimestamp(address user, uint256 ts) internal => balanceOfDiscountTokenAtTimestamp(user, ts) expect uint256;
-    
-    /************************************;
-     *   DummyPool.sol (linked to POOL)  *;
-     *************************************/
-    // Internal function in DummyPool which exposes the block's timestamp and called by Pool::getReserveNormalizedVariableDebt
-    function _._getReserveNormalizedVariableDebtWithBlockTimestamp(address asset, uint256 timestamp) internal => indexAtTimestamp(timestamp) expect uint256;
-    
-    /************************************;
-     *	GhoVariableDebtTokenHarness.sol	*;
-     *************************************/
-    function discStrategy.calculateDiscountRate(uint256, uint256) external returns (uint256) envfree;
-    
-    /************************************;
-     *	GhoVariableDebtTokenHarness.sol	*;
-     *************************************/
-    function getUserCurrentIndex(address) external returns (uint256) envfree;
-    function getUserDiscountRate(address) external returns (uint256) envfree;
-    function getUserAccumulatedDebtInterest(address) external returns (uint256) envfree;
-    function getBalanceOfDiscountToken(address) external returns (uint256);
+  	/***********************************;
+    *    PoolAddressesProvider.sol     *;
+    ************************************/
+	function _.getACLManager() external => CONSTANT;
 
-    /********************************;
-     *	GhoVariableDebtToken.sol	*;
-     *********************************/
-    function totalSupply() external returns(uint256) envfree;
-    function balanceOf(address) external returns (uint256);
-    function mint(address, address, uint256, uint256) external returns (bool, uint256);
-    function burn(address ,uint256 ,uint256) external returns (uint256);
-    function scaledBalanceOf(address) external returns (uint256) envfree;
-    function getBalanceFromInterest(address) external returns (uint256) envfree;
-    function rebalanceUserDiscountPercent(address) external;
-    function updateDiscountDistribution(address ,address ,uint256 ,uint256 ,uint256) external;
+	/************************;
+    *    ACLManager.sol     *;
+    *************************/
+	function _.isPoolAdmin(address) external => CONSTANT;
+
+	/******************************************************************;
+	*	DummyERC20WithTimedBalanceOf.sol (linked to _discountToken)   *;
+	*******************************************************************/
+	// Internal function in DummyERC20WithTimedBalanceOf which exposes the block's timestamp and called by DummyERC20WithTimedBalanceOf::balanceOf
+	function _._balanceOfWithBlockTimestamp(address user, uint256 ts) internal => balanceOfDiscountTokenAtTimestamp(user, ts) expect uint256;
+
+  	/************************************;
+    *   DummyPool.sol (linked to POOL)  *;
+    *************************************/
+	// Internal function in DummyPool which exposes the block's timestamp and called by Pool::getReserveNormalizedVariableDebt
+	function _._getReserveNormalizedVariableDebtWithBlockTimestamp(address asset, uint256 timestamp) internal => indexAtTimestamp(timestamp) expect uint256;
+
+	/************************************;
+	*	GhoVariableDebtTokenHarness.sol	*;
+	*************************************/
+	function discStrategy.calculateDiscountRate(uint256, uint256) external returns (uint256) envfree;
+
+	/************************************;
+	*	GhoVariableDebtTokenHarness.sol	*;
+	*************************************/
+	function getUserCurrentIndex(address) external returns (uint256) envfree;
+	function getUserDiscountRate(address) external returns (uint256) envfree;
+	function getUserAccumulatedDebtInterest(address) external returns (uint256) envfree;
+	function getBalanceOfDiscountToken(address) external returns (uint256);
+
+	/********************************;
+	*	GhoVariableDebtToken.sol	*;
+	*********************************/
+	function totalSupply() external returns(uint256) envfree;
+	function balanceOf(address) external returns (uint256);
+	function mint(address, address, uint256, uint256) external returns (bool, uint256);
+	function burn(address ,uint256 ,uint256) external returns (uint256);
+	function scaledBalanceOf(address) external returns (uint256) envfree;
+	function getBalanceFromInterest(address) external returns (uint256) envfree;
+	function rebalanceUserDiscountPercent(address) external;
+	function updateDiscountDistribution(address ,address ,uint256 ,uint256 ,uint256) external;
 }
-
-/*
-ghost rayMul_gst(mathint , mathint) returns uint256 {
-    axiom forall mathint x. forall mathint y. rayMul_gst(x,y)+0 == x;
-    //        (
-    //   ((x==0||y==0) => rayMul_MI(x,y)==0)
-    //   &&
-    //   x <= to_mathint(rayMul_MI(x,y)) && to_mathint(rayMul_MI(x,y)) <= 2*x
-    //  )    ;
-}
-ghost rayDiv_gst(mathint , mathint) returns uint256 {
-    axiom forall mathint x. forall mathint y. rayDiv_gst(x,y)+0 == x;
-    //        (
-    //    x/2 <= to_mathint(rayDiv_MI(x,y)) && to_mathint(rayDiv_MI(x,y)) <= x
-    //   );
-    }*/
 
 /**
 * CVL implementation of rayMul
@@ -542,16 +524,16 @@ rule integrityOfBurn_userIsolation() {
 * @title proves the after calling updateDiscountDistribution, the user's state is updated with the recent index value
 **/
 rule integrityOfUpdateDiscountDistribution_updateIndex() {
-    address sender;
-    address recipient;
-    uint256 senderDiscountTokenBalance;
+	address sender;
+	address recipient;
+	uint256 senderDiscountTokenBalance;
     uint256 recipientDiscountTokenBalance;
-    env e;
-    uint256 amount;
-    uint256 index = indexAtTimestamp(e.block.timestamp);
-    updateDiscountDistribution(e, sender, recipient, senderDiscountTokenBalance, recipientDiscountTokenBalance, amount);
-    assert(scaledBalanceOf(sender) > 0 => getUserCurrentIndex(sender) == index);
-    assert(scaledBalanceOf(recipient) > 0 => getUserCurrentIndex(recipient) == index);
+	env e;
+	uint256 amount;
+	uint256 index = indexAtTimestamp(e.block.timestamp);
+	updateDiscountDistribution(e, sender, recipient, senderDiscountTokenBalance, recipientDiscountTokenBalance, amount);
+	assert(scaledBalanceOf(sender) > 0 => getUserCurrentIndex(sender) == index);
+	assert(scaledBalanceOf(recipient) > 0 => getUserCurrentIndex(recipient) == index);
 }
 
 
@@ -661,25 +643,3 @@ rule burnAllDebtReturnsZeroDebt(address user) {
 	uint256 variableDebt_ = balanceOf(e, user);
     assert(variableDebt_ == 0);
 }
-
-
-
-
-rule mutant_11() {
-    env e;
-    address user; address onBehalfOf; uint256 amount; uint256 index;
-    //    require getUserCurrentIndex(onBehalfOf) <= index;
-    //require user ==1; require onBehalfOf==10;
-    //    require user != onBehalfOf;
-
-    mathint amountScaled = rayDiv(e,amount,index);
-    mathint prev_bal = scaledBalanceOf(e, onBehalfOf);
-    
-    mint(e,user,onBehalfOf,amount,index);
-
-    mathint after_bal = scaledBalanceOf(e, onBehalfOf);
-
-    assert (after_bal <= prev_bal + amountScaled);
-}
-
-

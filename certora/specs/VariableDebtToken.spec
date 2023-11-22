@@ -7,9 +7,8 @@ methods {
     //balanceOf(address) returns (uint256) envfree
 }
 
-definition ray()   returns uint256 = 1000000000000000000000000000; // 10^27
-definition ray_2() returns uint256 = 2000000000000000000000000000; // 2*10^27
-definition wad()   returns uint256 = 1000000000000000000; // 10^18
+definition ray() returns uint256 = 1000000000000000000000000000; // 10^27
+definition wad() returns uint256 = 1000000000000000000; // 10^18
 definition bound(uint256 index) returns mathint = ((index / ray()) + 1 ) / 2;
 // summerization for scaledBlanaceOf -> regularBalanceOf + 0.5 (canceling the rayMul)
 // ghost gRNVB() returns uint256 {

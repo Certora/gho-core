@@ -259,7 +259,7 @@ rule mutant_8() {
     address user; uint256 amount; uint256 index;
 
     mathint amountScaled = rayDiv(e,amount,index);
-    mathint prev_bal = scaledBalanceOf(e, user);
+    mathint prev_Scaledbal = scaledBalanceOf(e, user);
     uint256 discountScaled = get_discount_scaled(e,sender);
     uint256 balanceBeforeBurn = balanceOf(user);
 
