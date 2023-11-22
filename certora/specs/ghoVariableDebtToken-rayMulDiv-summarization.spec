@@ -11,10 +11,26 @@ methods{
      *********************/
     //        function rayDiv(uint256 x, uint256 y) external returns uint256 envfree;
     //function rayMul(uint256 x, uint256 y) external returns uint256 envfree;
-    //function _.rayMul(uint256 a,uint256 b) internal => rayMul_gst(a,b) expect uint256 ALL;
-    //function _.rayDiv(uint256 a,uint256 b) internal => rayDiv_gst(a,b) expect uint256 ALL;
+    function _.rayMul(uint256 a,uint256 b) internal => rayMul_gst(a,b) expect uint256 ALL;
+    function _.rayDiv(uint256 a,uint256 b) internal => rayDiv_gst(a,b) expect uint256 ALL;
     //    function getIndex(uint256 bal) public view returns (uint256) 
+    function getDiscountPercent(address user) external returns (uint256) envfree;
+    function _accrueDebtOnAction_ext(address user,uint256 previousScaledBalance,
+                                     uint256 discountPercent,uint256 index)
+        external returns (uint256,uint256) envfree;
+    function ___mint(address account, uint256 amount) external;
+    function _mintScaled_ext(address caller,address onBehalfOf,uint256 amount, uint256 index
+                            ) external returns (bool);
+    function _refreshDiscountPercent_ext(
+                                         address user,
+                                         uint256 balance,
+                                         uint256 discountTokenBalance,
+                                         uint256 previousDiscountPercent
+    ) external;
+    function get_ghoAToken() external returns (address) envfree;
 
+
+    
       /***********************************;
      *    PoolAddressesProvider.sol     *;
      ************************************/
@@ -63,21 +79,22 @@ methods{
     function updateDiscountDistribution(address ,address ,uint256 ,uint256 ,uint256) external;
 }
 
-/*
 ghost rayMul_gst(mathint , mathint) returns uint256 {
-    axiom forall mathint x. forall mathint y. rayMul_gst(x,y)+0 == x;
-    //        (
-    //   ((x==0||y==0) => rayMul_MI(x,y)==0)
+    axiom 1==1;
+    //    axiom forall mathint x. forall mathint y. //rayMul_gst(x,y)+0 == x;
+    //  (
+    //   ((x==0||y==0) => rayMul_gst(x,y)==0)
     //   &&
-    //   x <= to_mathint(rayMul_MI(x,y)) && to_mathint(rayMul_MI(x,y)) <= 2*x
+    //   x <= to_mathint(rayMul_gst(x,y)) && to_mathint(rayMul_gst(x,y)) <= 2*x
     //  )    ;
 }
 ghost rayDiv_gst(mathint , mathint) returns uint256 {
-    axiom forall mathint x. forall mathint y. rayDiv_gst(x,y)+0 == x;
-    //        (
-    //    x/2 <= to_mathint(rayDiv_MI(x,y)) && to_mathint(rayDiv_MI(x,y)) <= x
-    //   );
-    }*/
+    axiom 1==1;
+    //    axiom forall mathint x. forall mathint y. //rayDiv_gst(x,y)+0 == x;
+    //  (
+    //   x/2 <= to_mathint(rayDiv_gst(x,y)) && to_mathint(rayDiv_gst(x,y)) <= x
+    //  );
+}
 
 /**
 * CVL implementation of rayMul
@@ -542,16 +559,16 @@ rule integrityOfBurn_userIsolation() {
 * @title proves the after calling updateDiscountDistribution, the user's state is updated with the recent index value
 **/
 rule integrityOfUpdateDiscountDistribution_updateIndex() {
-    address sender;
-    address recipient;
-    uint256 senderDiscountTokenBalance;
+	address sender;
+	address recipient;
+	uint256 senderDiscountTokenBalance;
     uint256 recipientDiscountTokenBalance;
-    env e;
-    uint256 amount;
-    uint256 index = indexAtTimestamp(e.block.timestamp);
-    updateDiscountDistribution(e, sender, recipient, senderDiscountTokenBalance, recipientDiscountTokenBalance, amount);
-    assert(scaledBalanceOf(sender) > 0 => getUserCurrentIndex(sender) == index);
-    assert(scaledBalanceOf(recipient) > 0 => getUserCurrentIndex(recipient) == index);
+	env e;
+	uint256 amount;
+	uint256 index = indexAtTimestamp(e.block.timestamp);
+	updateDiscountDistribution(e, sender, recipient, senderDiscountTokenBalance, recipientDiscountTokenBalance, amount);
+	assert(scaledBalanceOf(sender) > 0 => getUserCurrentIndex(sender) == index);
+	assert(scaledBalanceOf(recipient) > 0 => getUserCurrentIndex(recipient) == index);
 }
 
 
@@ -663,104 +680,167 @@ rule burnAllDebtReturnsZeroDebt(address user) {
 }
 
 
+rule mutant_11() {
+    env e;
+    address user; address onBehalfOf; uint256 amount; uint256 index;
+    require user ==1; require onBehalfOf==10;
+    require getUserCurrentIndex(onBehalfOf) <= index;
 
-rule mutant_13() {
+    uint256 amountScaled = rayDiv_gst(amount,index);
+    uint256 prev_bal = scaledBalanceOf(e, onBehalfOf);
+
+    mint(e,user,onBehalfOf,amount,index);
+
+    mathint after_bal = scaledBalanceOf(e, onBehalfOf);
+    assert (after_bal <= prev_bal + amountScaled);
+}
+
+rule mutant_13_sender() {
     env e;
     address sender; address recipient; 
     uint256 senderDiscountTokenBalance; uint256 recipientDiscountTokenBalance; uint256 amount;
 
-    uint256 recipient_scaledBal_prev = scaledBalanceOf(recipient);
+    uint256 sender_scaledBal_prev = scaledBalanceOf(sender);   
+    uint256 discountScaled = get_discount_scaled(e,sender);
+    updateDiscountDistribution(e, sender, recipient,
+                               senderDiscountTokenBalance, recipientDiscountTokenBalance,
+                               amount);
+    uint256 sender_scaledBal_after = scaledBalanceOf(sender);
 
-    
-    //    assert (recipient_scaledBal_after <= recipient_scaledBal_prev);
-    uint256 current_index = indexAtTimestamp(e.block.timestamp);
-    uint256 recipient_index = getUserCurrentIndex(recipient);
-    require recipient_index <= current_index;
-    
-    //uint256 bal_increase = (current_index-recipient_index) * previousScaledBalance_of_recipient;
-    mathint bal_increase = rayMul(e, recipient_scaledBal_prev, current_index) -
-        rayMul(e, recipient_scaledBal_prev, recipient_index);
-    
-    //    uint256 discountScaled = bal_increase * recipient_precentage / index;
-    uint256 discountPercent = getDiscountPercent(e, recipient);
-    uint256 precent = require_uint256(bal_increase * discountPercent / 10000);
-    uint256 discountScaled = rayDiv(e, precent, current_index);
+    assert (discountScaled > 0 => sender_scaledBal_after<sender_scaledBal_prev);
+}
 
+
+rule mutant_13_recipient() {
+    env e;
+    address sender; address recipient; 
+    uint256 senderDiscountTokenBalance; uint256 recipientDiscountTokenBalance; uint256 amount;
+
+    uint256 recipient_scaledBal_prev = scaledBalanceOf(recipient);   
+    uint256 discountScaled = get_discount_scaled(e,recipient);
     updateDiscountDistribution(e, sender, recipient,
                                senderDiscountTokenBalance, recipientDiscountTokenBalance,
                                amount);
     uint256 recipient_scaledBal_after = scaledBalanceOf(recipient);
 
-    
-    assert (discountScaled > 0 => recipient_scaledBal_after < recipient_scaledBal_prev);
+    assert (discountScaled > 0 => recipient_scaledBal_after<recipient_scaledBal_prev);
 }
 
 
+
+
+
+rule mutant_10_on_sender() {
+    env e;
+    address sender; address recipient; 
+    uint256 senderDiscountTokenBalance; uint256 recipientDiscountTokenBalance; uint256 amount_1;
+    require (sender != recipient);
+    
+    storage initState = lastStorage;
+
+    updateDiscountDistribution(e, sender, recipient,
+                               senderDiscountTokenBalance, recipientDiscountTokenBalance,
+                               amount_1);
+    uint256 discountPercent_1 = getDiscountPercent(e, sender);
+
+    uint256 amount_2;
+    updateDiscountDistribution(e, sender, recipient,
+                               senderDiscountTokenBalance, recipientDiscountTokenBalance,
+                               amount_2) at initState;
+    uint256 discountPercent_2 = getDiscountPercent(e, sender);
+        
+    satisfy (discountPercent_1 != discountPercent_2);
+}
+
+
+rule mutant_10_on_recipient() {
+    env e;
+    address sender; address recipient; 
+    uint256 senderDiscountTokenBalance; uint256 recipientDiscountTokenBalance; uint256 amount_1;
+    require (sender != recipient);
+    
+    storage initState = lastStorage;
+
+    updateDiscountDistribution(e, sender, recipient,
+                               senderDiscountTokenBalance, senderDiscountTokenBalance,
+                               amount_1);
+    uint256 discountPercent_1 = getDiscountPercent(e, recipient);
+
+    uint256 amount_2;
+    updateDiscountDistribution(e, sender, recipient,
+                               senderDiscountTokenBalance, senderDiscountTokenBalance,
+                               amount_2) at initState;
+    uint256 discountPercent_2 = getDiscountPercent(e, recipient);
+        
+    satisfy (discountPercent_1 != discountPercent_2);
+}
+
+
+function get_discount_scaled(env e, address user) returns uint256 {
+    uint256 user_scaledBal_prev = scaledBalanceOf(user);
+    
+    //    assert (user_scaledBal_after <= user_scaledBal_prev);
+    uint256 current_index = indexAtTimestamp(e.block.timestamp);
+    uint256 user_index = getUserCurrentIndex(user);
+    require user_index <= current_index;
+
+    //uint256 bal_increase = (current_index-sender_index) * previousScaledBalance_of_sender;
+    mathint bal_increase = rayMul_gst(user_scaledBal_prev, current_index) -
+        rayMul_gst(user_scaledBal_prev, user_index);
+
+    //uint256 discountScaled = bal_increase * sender_precentage / index;
+    uint256 discountPercent = getDiscountPercent(e, user);
+    uint256 discount = require_uint256(bal_increase * discountPercent / 10000);
+    uint256 discountScaled = rayDiv_gst(discount, current_index);
+
+    return discountScaled;
+}
+
+
+// same as mutant_13_sender
 rule mutant_9() {
     env e;
     address sender; address recipient; 
     uint256 senderDiscountTokenBalance; uint256 recipientDiscountTokenBalance; uint256 amount;
 
     uint256 sender_scaledBal_prev = scaledBalanceOf(sender);
-    
-    //    assert (sender_scaledBal_after <= sender_scaledBal_prev);
-    uint256 current_index = indexAtTimestamp(e.block.timestamp);
-    uint256 sender_index = getUserCurrentIndex(sender);
-
-    require ray() <= sender_index  &&  sender_index <= current_index  && current_index <= ray_2();
-    
-    //uint256 bal_increase = (current_index-sender_index) * previousScaledBalance_of_sender;
-    mathint bal_increase = rayMul(e, sender_scaledBal_prev, current_index) -
-        rayMul(e,sender_scaledBal_prev, sender_index);
-    
-    //uint256 discountScaled = bal_increase * sender_precentage / index;
-    uint256 discountPercent = getDiscountPercent(e, sender);
-    uint256 discount = require_uint256(bal_increase * discountPercent / 10000);
-    uint256 discountScaled = rayDiv(e, discount, current_index);
+    uint256 discountScaled = get_discount_scaled(e,sender);
 
     updateDiscountDistribution(e, sender, recipient,
                                senderDiscountTokenBalance, senderDiscountTokenBalance,
                                amount);
     uint256 sender_scaledBal_after = scaledBalanceOf(sender);
-    
-    assert (sender_index +10000 < to_mathint(current_index) &&
-            sender_scaledBal_prev > 0 &&
-            discountPercent > 0
-           ) => sender_scaledBal_after<sender_scaledBal_prev;
+
+    assert (discountScaled > 0 => sender_scaledBal_after<sender_scaledBal_prev);
 }
 
-rule mutant_11() {
+
+rule mutant_4() {
     env e;
-    address user; address onBehalfOf; uint256 amount; uint256 index;
-    //    require getUserCurrentIndex(onBehalfOf) <= index;
-    //require user ==1; require onBehalfOf==10;
-    //    require user != onBehalfOf;
+    address a;
+    setAToken(e, a);
 
-    mathint amountScaled = rayDiv(e,amount,index);
-    mathint prev_bal = scaledBalanceOf(e, onBehalfOf);
-    
-    mint(e,user,onBehalfOf,amount,index);
-
-    mathint after_bal = scaledBalanceOf(e, onBehalfOf);
-
-    assert (after_bal <= prev_bal + amountScaled);
+    assert get_ghoAToken() != 0;
 }
-
 
 
 rule mutant_8() {
     env e;
     address user; uint256 amount; uint256 index;
-    //        address user; address onBehalfOf; uint256 amount; uint256 index;
 
     mathint amountScaled = rayDiv(e,amount,index);
     mathint prev_bal = scaledBalanceOf(e, user);
+    uint256 discountScaled = get_discount_scaled(e,sender);
+    uint256 balanceBeforeBurn = balanceOf(user);
 
     burn(e,user,amount,index);
 
     mathint after_bal = scaledBalanceOf(e, user);
 
+
+    
     assert (after_bal <= prev_bal + amountScaled);
 }
+
 
 

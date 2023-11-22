@@ -11,7 +11,7 @@ certoraRun certora/harness/ghoVariableDebtTokenHarness.sol:GhoVariableDebtTokenH
     certora/harness/DummyERC20WithTimedBalanceOf.sol \
     certora/munged/contracts/facilitators/aave/interestStrategy/GhoDiscountRateStrategy.sol \
     certora/harness/DummyERC20A.sol certora/harness/DummyERC20B.sol \
-    --verify GhoVariableDebtTokenHarness:certora/specs/ghoVariableDebtToken.spec \
+    --verify GhoVariableDebtTokenHarness:certora/specs/mutant_11.spec \
     --link GhoVariableDebtTokenHarness:_discountRateStrategy=GhoDiscountRateStrategy \
     --link GhoVariableDebtTokenHarness:_discountToken=DummyERC20WithTimedBalanceOf \
     --link GhoVariableDebtTokenHarness:POOL=DummyPool \
