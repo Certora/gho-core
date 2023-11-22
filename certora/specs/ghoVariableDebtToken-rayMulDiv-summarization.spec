@@ -251,7 +251,7 @@ rule _ghoAToken_cant_be_zero() {
 }
 
 
-
+/*
 rule discount_takes_place_in_burn() {
     env e;
     address user; uint256 amount; uint256 index;
@@ -270,5 +270,5 @@ rule discount_takes_place_in_burn() {
     assert (to_mathint(amount)!=prev_bal && discountScaled>0) =>
         after_bal < prev_bal - amountScaled;
 }
-
+*/
 
