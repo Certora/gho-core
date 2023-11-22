@@ -537,29 +537,28 @@ rule integrityOfBurn_userIsolation() {
 // }
 
 rule sendersDiscountPercentCannotIncrease(){
-	env e1; env e2;
+	env e1;
     address sender; address recipient; uint256 amount;
 
     uint256 _senderStkBalance = getBalanceOfDiscountToken(e1, sender);
     uint256 _recipientStkBalance = getBalanceOfDiscountToken(e1, recipient);
     uint256 indE1 = indexAtTimestamp(e1.block.timestamp);
-    uint256 indE2 = indexAtTimestamp(e2.block.timestamp);
+    // require(indE1 >= ray()); // this is already enforced in the funciton's body
+    require getUserCurrentIndex(sender) == indE1;
+    uint256 _sender_debt = balanceOf(e1, sender);
+    uint256 discount_sender = discStrategy.calculateDiscountRate(_sender_debt, _senderStkBalance);
+    require(discount_sender == getDiscountPercent(e1, sender));
+    require discount_sender != 0; // this can be violated due to discontiuity of calculateDiscountRate
     
+    env e2;
 	require e1.block.timestamp <= e2.block.timestamp;
-    require(indE1 >= ray());
+    uint256 indE2 = indexAtTimestamp(e2.block.timestamp);
 	require(indE2 >= indE1);
     require _senderStkBalance == getBalanceOfDiscountToken(e2, sender);
     require _recipientStkBalance == getBalanceOfDiscountToken(e2, recipient);
 
-    require getUserCurrentIndex(sender) == indE1;
-
-    uint256 _sender_debt = balanceOf(e1, sender);
-    uint256 discount_sender = discStrategy.calculateDiscountRate(_sender_debt, _senderStkBalance);
-
-    require(discount_sender == getDiscountPercent(e1, sender));
-    require discount_sender != 0;
-
     updateDiscountDistribution(e2, sender, recipient, _senderStkBalance, _recipientStkBalance, amount);
+    
     uint256 discountPercent_ = getDiscountPercent(e2, sender);
     assert (discountPercent_ <= discount_sender);
 }
