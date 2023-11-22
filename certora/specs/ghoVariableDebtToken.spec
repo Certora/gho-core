@@ -7,7 +7,6 @@ using GhoDiscountRateStrategy as discStrategy;
 
 methods{
 
-    function discStrategy.DISCOUNT_RATE() external returns uint256 envfree;
 	/********************;
 	*	WadRayMath.sol	*;
 	*********************/
@@ -61,6 +60,11 @@ methods{
 	function getBalanceFromInterest(address) external returns (uint256) envfree;
 	function rebalanceUserDiscountPercent(address) external;
 	function updateDiscountDistribution(address ,address ,uint256 ,uint256 ,uint256) external;
+
+    /********************************;
+	*	GhoDiscountRateStrategy.sol	*;
+	*********************************/
+    function discStrategy.DISCOUNT_RATE() external returns (uint256) envfree;
 }
 
 /**
@@ -555,7 +559,6 @@ rule sendersDiscountPercentCannotIncrease(){
     require(discount_sender == getDiscountPercent(e1, sender));
     require discount_sender != 0;
 
-    require sender != recipient;
     updateDiscountDistribution(e2, sender, recipient, _senderStkBalance, _recipientStkBalance, amount);
     uint256 discountPercent_ = getDiscountPercent(e2, sender);
     assert (discountPercent_ <= discount_sender);
