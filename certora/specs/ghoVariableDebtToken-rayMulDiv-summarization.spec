@@ -99,11 +99,11 @@ function balanceOfDiscountTokenAtTimestamp(address user, uint256 timestamp) retu
 }
 
 
-function get_discount_scaled(env e, address user) returns uint256 {
+function get_discount_scaled(env e, address user, uint256 current_index) returns uint256 {
     uint256 user_scaledBal_prev = scaledBalanceOf(user);
     
     //    assert (user_scaledBal_after <= user_scaledBal_prev);
-    uint256 current_index = indexAtTimestamp(e.block.timestamp);
+    //    uint256 current_index = indexAtTimestamp(e.block.timestamp);
     uint256 user_index = getUserCurrentIndex(user);
     require user_index <= current_index;
 
@@ -150,7 +150,7 @@ rule discount_takes_place_in_updateDiscountDistribution__sender() {
     uint256 senderDiscountTokenBalance; uint256 recipientDiscountTokenBalance; uint256 amount;
 
     uint256 sender_scaledBal_prev = scaledBalanceOf(sender);
-    uint256 discountScaled = get_discount_scaled(e,sender);
+    uint256 discountScaled = get_discount_scaled(e,sender,indexAtTimestamp(e.block.timestamp));
     updateDiscountDistribution(e, sender, recipient,
                                senderDiscountTokenBalance, recipientDiscountTokenBalance,
                                amount);
@@ -171,7 +171,7 @@ rule discount_takes_place_in_updateDiscountDistribution__recipient() {
     uint256 senderDiscountTokenBalance; uint256 recipientDiscountTokenBalance; uint256 amount;
 
     uint256 recipient_scaledBal_prev = scaledBalanceOf(recipient);   
-    uint256 discountScaled = get_discount_scaled(e,recipient);
+    uint256 discountScaled = get_discount_scaled(e,recipient,indexAtTimestamp(e.block.timestamp));
     updateDiscountDistribution(e, sender, recipient,
                                senderDiscountTokenBalance, recipientDiscountTokenBalance,
                                amount);
@@ -251,24 +251,22 @@ rule _ghoAToken_cant_be_zero() {
 }
 
 
-/*
+
 rule discount_takes_place_in_burn() {
     env e;
     address user; uint256 amount; uint256 index;
 
-    mathint amountScaled = rayDiv(e,amount,index);
-    mathint prev_Scaledbal = scaledBalanceOf(e, user);
-    mathint prev_bal = balanceOf(e, user);
-    uint256 discountScaled = get_discount_scaled(e,user);
-    //uint256 balanceBeforeBurn = balanceOf(user);
+    mathint _amountScaled = rayDiv(e,amount,index);
+    mathint _prev_scaledBal = scaledBalanceOf(e, user);
+    mathint _prev_bal = balanceOf(e, user);
+    uint256 _discountScaled = get_discount_scaled(e,user,index);
 
     burn(e,user,amount,index);
-    mathint after_bal = scaledBalanceOf(e, user);
 
-    assert to_mathint(amount)==prev_bal => after_bal==0;
-
-    assert (to_mathint(amount)!=prev_bal && discountScaled>0) =>
-        after_bal < prev_bal - amountScaled;
+    mathint _after_scaledBal = scaledBalanceOf(e, user);
+    assert to_mathint(amount)==_prev_bal => _after_scaledBal==0;
+    assert (to_mathint(amount)!=_prev_bal && _discountScaled>0) =>
+        _after_scaledBal < _prev_scaledBal - _amountScaled;
 }
-*/
+
 
