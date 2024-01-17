@@ -42,7 +42,7 @@ jobs:
 
       - name: Verify rule ${{ matrix.rule }}
         run: |
-          cd certora
+          cd certora/gho
           touch applyHarness.patch
           make munged
           cd ..
