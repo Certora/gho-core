@@ -46,7 +46,7 @@ jobs:
           cd certora/gho
           touch applyHarness.patch
           make munged
-          cd ..
+          cd ../..
           echo "key length" ${#CERTORAKEY}
           certoraRun certora/gho/conf/${{ matrix.rule }}
         env:
