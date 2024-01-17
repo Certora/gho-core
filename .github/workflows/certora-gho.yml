@@ -1,4 +1,4 @@
-name: certora
+name: certora-gho
 
 on:
   push:
@@ -48,7 +48,7 @@ jobs:
           make munged
           cd ..
           echo "key length" ${#CERTORAKEY}
-          certoraRun certora/conf/${{ matrix.rule }}
+          certoraRun certora/gho/conf/${{ matrix.rule }}
         env:
           CERTORAKEY: ${{ secrets.CERTORAKEY }}
 
