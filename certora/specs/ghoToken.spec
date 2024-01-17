@@ -522,9 +522,3 @@ rule address_not_in_list_after_removeFacilitator_CASE_SPLIT_zero_address(address
 	removeFacilitator(e, facilitator);
 	assert !is_in_facilitator_set_array(facilitator);
 }
-
-
-
-
-
-

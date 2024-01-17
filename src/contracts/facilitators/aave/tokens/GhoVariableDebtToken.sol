@@ -262,6 +262,11 @@ contract GhoVariableDebtToken is DebtTokenBase, ScaledBalanceTokenBase, IGhoVari
     uint256 recipientDiscountTokenBalance,
     uint256 amount
   ) external override onlyDiscountToken {
+    // Skipping computation in case of discount token self-transfer
+    if (sender == recipient) {
+      return;
+    }
+
     uint256 senderPreviousScaledBalance = super.balanceOf(sender);
     uint256 recipientPreviousScaledBalance = super.balanceOf(recipient);
 
@@ -404,7 +409,7 @@ contract GhoVariableDebtToken is DebtTokenBase, ScaledBalanceTokenBase, IGhoVari
     emit Transfer(address(0), onBehalfOf, amountToMint);
     emit Mint(caller, onBehalfOf, amountToMint, balanceIncrease, index);
 
-    return previousScaledBalance == 0;
+    return true;
   }
 
   /**
@@ -425,6 +430,8 @@ contract GhoVariableDebtToken is DebtTokenBase, ScaledBalanceTokenBase, IGhoVari
     uint256 amountScaled = amount.rayDiv(index);
     require(amountScaled != 0, Errors.INVALID_BURN_AMOUNT);
 
+    uint256 balanceBeforeBurn = balanceOf(user);
+
     uint256 previousScaledBalance = super.balanceOf(user);
     uint256 discountPercent = _ghoUserState[user].discountPercent;
     (uint256 balanceIncrease, uint256 discountScaled) = _accrueDebtOnAction(
@@ -434,7 +441,11 @@ contract GhoVariableDebtToken is DebtTokenBase, ScaledBalanceTokenBase, IGhoVari
       index
     );
 
-    _burn(user, (amountScaled + discountScaled).toUint128());
+    if (amount == balanceBeforeBurn) {
+      _burn(user, previousScaledBalance.toUint128());
+    } else {
+      _burn(user, (amountScaled + discountScaled).toUint128());
+    }
 
     _refreshDiscountPercent(
       user,
