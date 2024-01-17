@@ -12,8 +12,8 @@ on:
 
 jobs:
   verify:
-    runs-on:
-      group: larger
+    runs-on: ubuntu-latest
+    #   group: larger
 
     steps:
       - uses: actions/checkout@v2
