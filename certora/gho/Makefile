@@ -1,7 +1,7 @@
 default: help
 
 PATCH         = applyHarness.patch
-CONTRACTS_DIR = ../src
+CONTRACTS_DIR = ../../src
 MUNGED_DIR    = munged
 
 help:
