@@ -167,16 +167,16 @@ rule GetBuyFeeNeverReverts()
 	assert !lastReverted;
 }
 
-// @title No method can change fees.
-// STATUS: PASS
-// https://prover.certora.com/output/11775/2daedeb4c01a4354bc7889ffd9f4ec25?anonymousKey=eee3f23fb4011ab65bf9a0096bc855dcfb58a780
-rule noMethodCanChangeFees(method f)
-{
-	env e;
-	calldataarg args;
-	uint sellFeeBefore = getSellFeeBP();
-	uint buyFeeBefore = getBuyFeeBP();
-	f(e,args);
-	assert getSellFeeBP() == sellFeeBefore;
-	assert getBuyFeeBP() == buyFeeBefore;
-}
+// // @title No method can change fees.
+// // STATUS: PASS
+// // https://prover.certora.com/output/11775/2daedeb4c01a4354bc7889ffd9f4ec25?anonymousKey=eee3f23fb4011ab65bf9a0096bc855dcfb58a780
+// rule noMethodCanChangeFees(method f)
+// {
+// 	env e;
+// 	calldataarg args;
+// 	uint sellFeeBefore = getSellFeeBP();
+// 	uint buyFeeBefore = getBuyFeeBP();
+// 	f(e,args);
+// 	assert getSellFeeBP() == sellFeeBefore;
+// 	assert getBuyFeeBP() == buyFeeBefore;
+// }

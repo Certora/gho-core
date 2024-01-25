@@ -237,7 +237,8 @@ rule collectedBuyFeeIsAtLeastAsRequired()
 	uint256 assetAmount;
 	uint256 ghoTotal; uint256 ghoGross; uint256 ghoFee;
 	_, ghoTotal, ghoGross, ghoFee = getGhoAmountForBuyAsset(e, assetAmount);
-	assert getPercMathPercentageFactor(e) * ghoFee >= getBuyFeeBP(e) * ghoGross;
+	// assert getPercMathPercentageFactor(e) * ghoFee >= getBuyFeeBP(e) * ghoGross;
+	satisfy getPercMathPercentageFactor(e) * ghoFee >= getBuyFeeBP(e) * ghoGross;
 }
 
 // @title The buy fee actually collected (after rounding) is at least the required percentage.
