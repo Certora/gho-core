@@ -23,10 +23,6 @@ contract GsmHarness is Gsm {
     return _currentExposure;
   }
 
-  function getExposureCap() external view returns (uint256) {
-    return _exposureCap;
-  }
-
   function getGhoMinted() public view returns (uint256 ghoMinted) {
     (, ghoMinted) = IGhoToken(GHO_TOKEN).getFacilitatorBucket(address(this));
   }
