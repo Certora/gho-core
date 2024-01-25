@@ -77,4 +77,8 @@ contract OracleSwapFreezerHarness is OracleSwapFreezer {
   function getPrice() external view returns (uint256) {
     return IPriceOracle(ADDRESS_PROVIDER.getPriceOracle()).getAssetPrice(UNDERLYING_ASSET);
   }
+
+  function hasRole() external view returns(bool) {
+    return GSM.hasRole(GSM.SWAP_FREEZER_ROLE(), address(this));
+  }
 }

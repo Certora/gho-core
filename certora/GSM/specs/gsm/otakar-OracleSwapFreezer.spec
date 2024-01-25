@@ -5,8 +5,11 @@ methods {
 	function getFreezeBound() external returns (uint128, uint128) envfree;
 	function getUnfreezeBound() external returns (uint128, uint128) envfree;
 	function validateBounds(uint128,uint128,uint128,uint128,bool) external returns bool envfree;
+    function _.hasRole(bytes32, address) external => hasRole expect bool;
 	function _.getAssetPrice(address) external => CONSTANT;
+	function _.getPriceOracle() external => CONSTANT;
 	function _.getIsSeized() external => CONSTANT;
+	function _.SWAP_FREEZER_ROLE() external => CONSTANT;
 	function _.getIsFrozen() external => CONSTANT;
 }
 
@@ -18,6 +21,8 @@ function boundsAreValid() returns bool
 	return validateBounds(freezeLower, freezeUpper, unFreezeLower, unFreezeUpper, true);
 }
 
+ghost bool hasRole;
+
 // @title Freeze action is executable under specified conditions
 // Freeze action is executable if GSM is not seized, not frozen and price is outside of the freeze bounds
 // STATUS: PASS
@@ -26,6 +31,7 @@ rule freezeExecutable()
 {
 	env e;
 	uint256 price = getPrice(e);
+    require hasRole == true;
 	require !isFrozen(e) && !isSeized(e);
 	uint128 freezeLower; uint128 freezeUpper;
 	freezeLower, freezeUpper = getFreezeBound();
@@ -40,8 +46,9 @@ rule freezeExecutable()
 rule unfreezeExecutable()
 {
 	env e;
-	require boundsAreValid();
 	uint256 price = getPrice(e);
+    require hasRole == true;
+	require boundsAreValid();
 	require isFrozen(e) && !isSeized(e);
 	uint128 unFreezeLower; uint128 unFreezeUpper;
 	unFreezeLower, unFreezeUpper = getUnfreezeBound();
