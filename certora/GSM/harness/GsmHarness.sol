@@ -19,7 +19,7 @@ contract GsmHarness is Gsm {
     return _accruedFees;
   }
 
-  function getCurrentExposure() external view returns (uint256) {
+  function getCurrentExposure() external view returns (uint128) {
     return _currentExposure;
   }
 

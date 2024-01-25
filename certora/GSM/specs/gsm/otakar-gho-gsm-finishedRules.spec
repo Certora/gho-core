@@ -56,7 +56,7 @@ rule buyAssetDecreasesExposure()
 	priceLimits(e);
 	uint128 amount;
     address receiver;
-	uint exposureBefore = getCurrentExposure(e);
+	uint128 exposureBefore = getCurrentExposure(e);
 	require amount > 0;
 	buyAsset(e, amount, receiver);
 
@@ -74,7 +74,7 @@ rule sellAssetIncreasesExposure()
 	priceLimits(e);
 	uint128 amount;
     address receiver;
-	uint exposureBefore = getCurrentExposure(e);
+	uint128 exposureBefore = getCurrentExposure(e);
 	require amount > 0;
 	sellAsset(e, amount, receiver);
 
@@ -93,8 +93,8 @@ rule cantSellIfExposureTooHigh()
     address receiver;
 	sellAsset(e, amount, receiver);
 	
-	uint256 exposureCap = getExposureCap(e);
-	uint256 currentExposure = getCurrentExposure(e);
+	uint128 exposureCap = getExposureCap(e);
+	uint128 currentExposure = getCurrentExposure(e);
 
 	assert currentExposure <= exposureCap;
 }
@@ -176,10 +176,10 @@ rule whoCanChangeExposure(method f)
 	env e;
 	feeLimits(e);
 	priceLimits(e);
-	uint256 exposureBefore = getCurrentExposure(e);
+	uint128 exposureBefore = getCurrentExposure(e);
 	calldataarg args;
 	f(e, args);
-	uint256 exposureAfter = getCurrentExposure(e);
+	uint128 exposureAfter = getCurrentExposure(e);
 	assert exposureAfter > exposureBefore => canIncreaseExposure(f), "should not increase exposure";
 	assert exposureAfter < exposureBefore => canDecreaseExposure(f), "should not decrease exposure";
 }
