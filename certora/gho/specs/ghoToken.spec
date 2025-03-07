@@ -20,11 +20,11 @@ ghost sumAllBalance() returns mathint {
     init_state axiom sumAllBalance() == 0;
 }
 
-hook Sstore balanceOf[KEY address a] uint256 balance (uint256 old_balance) STORAGE {
+hook Sstore balanceOf[KEY address a] uint256 balance (uint256 old_balance) {
   havoc sumAllBalance assuming sumAllBalance@new() == sumAllBalance@old() + balance - old_balance;
 }
 
-hook Sload uint256 balance balanceOf[KEY address a] STORAGE {
+hook Sload uint256 balance balanceOf[KEY address a] {
     require to_mathint(balance) <= sumAllBalance();
 } 
 
@@ -39,7 +39,7 @@ ghost sumAllLevel() returns mathint {
  * @dev Sample stores to  _facilitators[*].bucketLevel
  * @dev first field of struct Facilitator is uint128 so offset 16 is used  
  **/
-hook Sstore _facilitators[KEY address a].(offset 16) uint128 level (uint128 old_level)   STORAGE {
+hook Sstore _facilitators[KEY address a].(offset 16) uint128 level (uint128 old_level) {
   havoc sumAllLevel assuming sumAllLevel@new() == sumAllLevel@old() + level - old_level;
 }
 
@@ -499,13 +499,7 @@ invariant ARRAY_IS_INVERSE_OF_MAP_Invariant()
 	}
 
 //pass with workaround for https://certora.atlassian.net/browse/CERT-1060
-invariant addressSetInvariant()
-    ADDRESS_SET_INVARIANT()
-	{
-		preserved{
-			requireInvariant length_leq_max_uint160();
-		}
-	}
+use invariant addressSetInvariant;
 
 //Debugging  https://certora.atlassian.net/browse/CERT-1060 
 //timeout with staging
